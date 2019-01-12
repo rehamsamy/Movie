@@ -1,6 +1,7 @@
 package com.example.mohamed.popularmovie;
 
 
+import android.util.Log;
 import android.view.Display;
 
 import java.util.List;
@@ -8,17 +9,19 @@ import java.util.List;
 public class Model {
 
     String mtitle, mposter, moverview, mvote, mrelease;
+    List<String> mpopulate;
+
+String TAG= getClass().getSimpleName();
 
 
-
-
-    public Model(String title, String poster_image, String overview, String vote_average, String realse_data) {
+    public Model(String title, String poster_image, String overview, String vote_average, String realse_data, List<String> populate) {
 
         mtitle = title;
         mposter = poster_image;
         moverview = overview;
         mvote = vote_average;
         mrelease = realse_data;
+        mpopulate=populate;
 
 
 
@@ -46,5 +49,8 @@ public class Model {
         return mrelease;
     }
 
-
+    public List<String> getMpopulate() {
+        //Log.v(TAG,"fffffffffffffffffffff"+mpopulate);
+        return mpopulate;
+    }
 }

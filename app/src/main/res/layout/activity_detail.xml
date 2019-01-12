@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8dp">
+
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
@@ -7,9 +14,26 @@
 
 
 
-    <ImageView
-        android:layout_alignParentLeft="true"
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_centerVertical="true"
         android:layout_alignParentTop="true"
+        android:paddingHorizontal="30dp"
+        android:layout_height="60dp"
+        android:id="@+id/title"
+        android:textSize="24dp"
+        android:textStyle="bold"
+        android:textColor="#000"
+        android:background="#81c2c2"
+        android:layout_marginBottom="8dp"
+
+        />
+
+
+    <ImageView
+        android:layout_below="@+id/title"
+        android:layout_alignParentLeft="true"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/poster"
@@ -19,19 +43,13 @@
 
     <LinearLayout
       android:layout_toRightOf="@+id/poster"
+        android:layout_below="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="30dp">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/title"
-        android:textSize="17dp"
-        android:background="#f40303"
-        android:textStyle="bold"
-        android:textColor="#000"
-        />
+
+        android:layout_marginLeft="15dp">
+
 
 
 
@@ -39,22 +57,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/vote"
+        android:textSize="14dp"
+        android:textStyle="bold"
+        android:textColor="#000"
+
         />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/release"
+        android:textSize="14dp"
+        android:textStyle="bold"
+        android:textColor="#000"
         />
 
     </LinearLayout>
-
     <TextView
         android:layout_below="@+id/poster"
         android:layout_width="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_height="wrap_content"
         android:id="@+id/overview"
-        android:textSize="20dp"
-        android:textColor="#9c0207"
+        android:textSize="15dp"
+        android:textColor="@color/colorPrimary"
         />
+
 </RelativeLayout>
+
+</ScrollView>

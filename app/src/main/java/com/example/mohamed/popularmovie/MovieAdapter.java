@@ -18,21 +18,16 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieAdapter  extends RecyclerView.Adapter<MovieAdapter.Holder>  {
+import static com.example.mohamed.popularmovie.Utils.pop;
 
-    private  ItemClick mOnClick;
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
-   // private  ItemClick mOnMenuClick;
-
+    private ItemClick mOnClick;
 
     public interface ItemClick {
         void onItemClick(Model model);
-        //void  onMenuClick(Model model);
-
 
     }
-
-
 
 
     Context context;
@@ -43,12 +38,10 @@ public class MovieAdapter  extends RecyclerView.Adapter<MovieAdapter.Holder>  {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
 
-
-
-    public MovieAdapter(Context mcontext, List<Model> mwords,ItemClick listener) {
-        context=mcontext;
-        words=mwords;
-        mOnClick=listener;
+    public MovieAdapter(Context mcontext, List<Model> mwords, ItemClick listener) {
+        context = mcontext;
+        words = mwords;
+        mOnClick = listener;
 
 
     }
@@ -57,21 +50,26 @@ public class MovieAdapter  extends RecyclerView.Adapter<MovieAdapter.Holder>  {
     @NonNull
     @Override
     public MovieAdapter.Holder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-       View  view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
-            Log.v(TAG, "view is null");
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
+        Log.v(TAG, "view is null");
 
         return new Holder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MovieAdapter.Holder holder, int i) {
-        final Model model=words.get(i);
-       String path = model.getMposter();
+        final Model model = words.get(i);
+        String path = model.getMposter();
+        // Toast.makeText(context,"xxxx"+model.getMtitle(),Toast.LENGTH_LONG);
+
+        List<String> x = popMethod(model.getMpopulate());
+
         String value = "w185";
         String base_url = "http://image.tmdb.org/t/p/";
         final String full_url = base_url + value + "/" + path;
 
-       populateUI();
+
+        populateUI();
         Picasso.with(context)
                 .load(full_url)
                 .into(holder.poster);
@@ -79,12 +77,18 @@ public class MovieAdapter  extends RecyclerView.Adapter<MovieAdapter.Holder>  {
         holder.poster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-       mOnClick.onItemClick(model);
+                mOnClick.onItemClick(model);
 
 
             }
         });
-        }
+    }
+
+    private List<String> popMethod(List<String> mpopulate) {
+
+        Log.v(TAG, "mmmmmmmmmmmmmmmm" + mpopulate.get(2));
+        return mpopulate;
+    }
 
 
     @Override
@@ -95,19 +99,16 @@ public class MovieAdapter  extends RecyclerView.Adapter<MovieAdapter.Holder>  {
     private void populateUI() {
     }
 
-    public class Holder extends RecyclerView.ViewHolder   {
-       LinearLayout root;
-                ImageView poster;
-       // private BitSet words;
+    public class Holder extends RecyclerView.ViewHolder {
+        LinearLayout root;
+        ImageView poster;
 
-        Menu menu;
 
         public Holder(@NonNull View view) {
             super(view);
-           // menu=view.
-             poster = view.findViewById(R.id.poster);
-             root=view.findViewById(R.id.root);
-             //menu=view.createContextMenu(this);
+            // menu=view.
+            poster = view.findViewById(R.id.poster);
+            root = view.findViewById(R.id.root);
 
 
         }

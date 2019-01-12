@@ -10,29 +10,29 @@ import com.squareup.picasso.Picasso;
 
 public class Detail extends AppCompatActivity {
 
-    TextView title,overview,release,vote;
+    TextView title, overview, release, vote;
     ImageView poster;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-       title=(TextView) findViewById(R.id.title);
-        overview=(TextView) findViewById(R.id.overview);
-        release=(TextView) findViewById(R.id.release);
-        vote=(TextView) findViewById(R.id.vote);
-        poster=(ImageView) findViewById(R.id.poster);
+        title = (TextView) findViewById(R.id.title);
+        overview = (TextView) findViewById(R.id.overview);
+        release = (TextView) findViewById(R.id.release);
+        vote = (TextView) findViewById(R.id.vote);
+        poster = (ImageView) findViewById(R.id.poster);
 
-        Intent intent=getIntent();
+        Intent intent = getIntent();
 
-        String mtitle= intent.getStringExtra("t");
-        String moverview= intent.getStringExtra("o");
-        String mrelease= intent.getStringExtra("r");
-        String mvote= intent.getStringExtra("v");
-        String mposter=intent.getStringExtra("p");
+        String mtitle = intent.getStringExtra("title_key");
+        String moverview = intent.getStringExtra("overview_key");
+        String mrelease = intent.getStringExtra("release_key");
+        String mvote = intent.getStringExtra("vote_key");
+        String mposter = intent.getStringExtra("url_key");
 
 
-
-       title.setText(mtitle);
+        title.setText(mtitle);
         overview.setText(moverview);
         release.setText(mrelease);
         vote.setText(mvote);
