@@ -246,11 +246,10 @@ Model mode;
                     String  vote=model.getVote();
                     String id=model.getId();
                      mode=new Model(title,poster,overview,vote,release,id);
-                     newModels.add(mode);
+                     models.add(mode);
 
 
-                     Log.v("MainActivity","mmmmmmmmmmm"+newModels.size());
-
+                     Log.v("MainActivity","mmmmmmmmmmm"+models.size());
 
                  }
 //               adapter=new MovieAdapter(getApplicationContext(),newModels,this);
