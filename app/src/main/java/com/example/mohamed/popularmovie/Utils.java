@@ -2,6 +2,7 @@ package com.example.mohamed.popularmovie;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,15 +72,18 @@ public final class Utils {
                 String overview = filmItem.optString("overview");
                 String vote_average = filmItem.optString("vote_average");
                 String realse_data = filmItem.optString("release_date");
+                String id=filmItem.optString("id");
 
 
                 String populated = filmItem.optString("popularity");
                 populate.add(populated);
 
-                Log.v(TAG, "title overview" + title + overview);
+               // Log.v(TAG, "title overview" + title + overview);
 
-                Model model = new Model(title, poster_image, overview, vote_average, realse_data, populate);
+                Model model = new Model(title, poster_image, overview, vote_average, realse_data,id);
 
+                Log.v(TAG, "title overview" + id);
+               // Toast.makeText(TAG, "dddddddddddddddd"+id, Toast.LENGTH_SHORT).show();
 
                 films.add(model);
 

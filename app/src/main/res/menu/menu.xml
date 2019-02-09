@@ -14,4 +14,9 @@
         android:id="@+id/top_rated"
         ></item>
 
+    <item
+        android:title="Fovorite"
+        android:id="@+id/fovorite"
+        ></item>
+
 </menu>

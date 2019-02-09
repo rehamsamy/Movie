@@ -2,16 +2,22 @@
 package com.example.mohamed.popularmovie;
 
 import android.app.LoaderManager;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.sip.SipAudioCall;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +37,8 @@ import android.widget.Toast;
 
 import com.example.mohamed.popularmovie.Model;
 import com.example.mohamed.popularmovie.MovieAdapter;
+import com.example.mohamed.popularmovie.Room.AppDatabase;
+import com.example.mohamed.popularmovie.Room.MainViewModel;
 
 import org.w3c.dom.Text;
 
@@ -51,22 +59,28 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     private static String murl;
 
     TextView text;
-    ArrayList<Model> words;
+    List<Model> words;
     ConnectivityManager manager;
     NetworkInfo networkInfo;
-
+    AppDatabase database;
+    List<Model> tasks;
+Model mode;
+    List<Model> newModels;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        database = AppDatabase.getmInstance(getApplicationContext());
+
         recyclerView = findViewById(R.id.list);
         words = new ArrayList<>();
 
 
         text = (TextView) findViewById(R.id.connect);
 
-         manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         networkInfo = manager.getActiveNetworkInfo();
 
@@ -93,9 +107,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     }
 
 
-    @Override
-    public void onItemClick(Model model) {
-    }
 
     public class Eath extends AsyncTask<String, Void, List<Model>> implements MovieAdapter.ItemClick {
         @Override
@@ -121,11 +132,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             super.onPostExecute(words);
             if (words != null && !words.isEmpty()) {
                 adapter = new MovieAdapter(getApplicationContext(), words, this);
-               recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
+                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
                 recyclerView.setAdapter(adapter);
 
             } else {
-               // words.clear();
+                // words.clear();
             }
 
 
@@ -133,13 +144,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
         @Override
         public void onItemClick(Model model) {
-            String title = model.getMtitle();
-            String overview = model.getMoverview();
-            String release = model.getMrelease();
-            String vote = model.getMvote();
+            String title = model.getTitle();
+            String overview = model.getOverview();
+            String release = model.getRelease();
+            String vote = model.getVote();
+            String id = model.getId();
             Intent intent = new Intent(getApplicationContext(), Detail.class);
 
-            String path = model.getMposter();
+            String path = model.getPoster();
             String value = "w185";
             String base_url = "http://image.tmdb.org/t/p/";
             final String full_url = base_url + value + "/" + path;
@@ -149,7 +161,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             intent.putExtra("overview_key", overview);
             intent.putExtra("release_key", release);
             intent.putExtra("vote_key", vote);
+            intent.putExtra("pop_id", id);
             Log.v(TAG, "title is " + title);
+            Log.v(TAG, "idddddddddddddddddd " + id);
+            // Toast.makeText(MainActivity.this,"idddddddddddd"+id,Toast.LENGTH_LONG).show();
             startActivity(intent);
 
         }
@@ -173,26 +188,107 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
         int id = item.getItemId();
 
-        switch (id) {
-            case R.id.top_rated:
-                if (networkInfo != null && networkInfo.isConnected()) {
-                    murl = "http://api.themoviedb.org/3/movie/top_rated?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
-                    posters();
+        if (id == R.id.top_rated && networkInfo != null && networkInfo.isConnected()) {
+            murl = "http://api.themoviedb.org/3/movie/top_rated?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
+            posters();
 
-                }else {
-                   text.setText("network offline");
-                    text.setVisibility(View.VISIBLE);
+        } else if (id == R.id.populate && networkInfo != null && networkInfo.isConnected()) {
 
-                    Toast.makeText(getApplicationContext(), "Intenet is Disconnected", Toast.LENGTH_LONG).show();
+            murl = "http://api.themoviedb.org/3/movie/popular?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
+            posters();
 
-                }
-                break;
-            case R.id.populate:
-                murl = "http://api.themoviedb.org/3/movie/popular?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
-                posters();
-                break;
+        } else if (id == R.id.fovorite) {
+
+            extractFovorite();
+
+//            words=  database.daoTask().loadAllTasks();
+//            if (words != null && !words.isEmpty()) {
+//                adapter = new MovieAdapter(getApplicationContext(), words, this);
+//                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
+//                recyclerView.setAdapter(adapter);
+//                //adapter.setTasks(words);
+//
+//                Log.v("MainActivity","xxxxxxxxxxx"+words.size());
+//
+//
+//            } else {
+//                Log.v("MainActivity","nnnnnnnnnnnn"+words.size());
+//
+//                // words.clear();
+//            }
+//
+
+        } else {
+
+            text.setTextSize(30);
+            text.setText("network offline");
+            text.setVisibility(View.VISIBLE);
+            Toast.makeText(getApplicationContext(), " Disconnected", Toast.LENGTH_LONG).show();
+
         }
 
         return true;
     }
+
+    private void extractFovorite() {
+
+        MainViewModel model= ViewModelProviders.of(this).get(MainViewModel.class);
+        model.getAllTasks().observe(this, new Observer<List<Model>>() {
+            @Override
+            public void onChanged(@Nullable List<Model> models) {
+
+                 for(int i=0;i<models.size();i++){
+                    Model model=models.get(i);
+                    String poster=model.getPoster();
+                    String overview=model.getOverview();
+                    String title=model.getTitle();
+                    String release=model.getRelease();
+                    String  vote=model.getVote();
+                    String id=model.getId();
+                     mode=new Model(title,poster,overview,vote,release,id);
+                     newModels.add(mode);
+
+
+                     Log.v("MainActivity","mmmmmmmmmmm"+newModels.size());
+
+
+                 }
+//               adapter=new MovieAdapter(getApplicationContext(),newModels,this);
+//               recyclerView.setAdapter(adapter);
+//                Log.v("MainActivity","tttttttttttttttt"+models.size());
+                adapter.setTasks(models);
+
+
+            }
+        });
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+       // extractFovorite();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            murl = "http://api.themoviedb.org/3/movie/popular?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
+            posters();
+            recyclerView.setAdapter(adapter);
+
+            Toast.makeText(getApplicationContext(), "Internet is connectet", Toast.LENGTH_LONG).show();
+
+
+        }
+
+    }
+
+
+    @Override
+    public void onItemClick(Model model) {
+
+    }
+
+
+
+
+
 }

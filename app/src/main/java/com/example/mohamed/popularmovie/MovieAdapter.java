@@ -1,5 +1,6 @@
 package com.example.mohamed.popularmovie;
 
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -24,6 +25,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
     private ItemClick mOnClick;
 
+
+
     public interface ItemClick {
         void onItemClick(Model model);
 
@@ -31,7 +34,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
 
     Context context;
-    public List<Model> words;
+    public static List<Model> words;
+
 
     Model model;
 
@@ -42,6 +46,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
         context = mcontext;
         words = mwords;
         mOnClick = listener;
+
+
+    }
+
+    Observer<List<Model>> observer;
+    public MovieAdapter(Context applicationContext, List<Model> models, Observer<List<Model>> mobserver) {
+        context=applicationContext;
+        words=models;
+        observer=mobserver;
 
 
     }
@@ -59,10 +72,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     @Override
     public void onBindViewHolder(@NonNull MovieAdapter.Holder holder, int i) {
         final Model model = words.get(i);
-        String path = model.getMposter();
+        String path = model.getPoster();
         // Toast.makeText(context,"xxxx"+model.getMtitle(),Toast.LENGTH_LONG);
 
-        List<String> x = popMethod(model.getMpopulate());
+        //List<String> x = popMethod(model.getMpopulate());
 
         String value = "w185";
         String base_url = "http://image.tmdb.org/t/p/";
@@ -84,6 +97,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
         });
     }
 
+
     private List<String> popMethod(List<String> mpopulate) {
 
         Log.v(TAG, "mmmmmmmmmmmmmmmm" + mpopulate.get(2));
@@ -99,6 +113,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     private void populateUI() {
     }
 
+
+    public void setTasks(List<Model> mwords) {
+        words=mwords;
+        notifyDataSetChanged();
+    }
+
+    public static List<Model> getTasks(){
+        return words;
+
+    }
+
     public class Holder extends RecyclerView.ViewHolder {
         LinearLayout root;
         ImageView poster;
@@ -112,6 +137,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
 
         }
+
+
 
     }
 }
