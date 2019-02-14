@@ -198,8 +198,9 @@ Model mode;
             posters();
 
         } else if (id == R.id.fovorite) {
+            words.clear();
 
-            extractFovorite();
+            new FovoriteTask().execute();
 
 //            words=  database.daoTask().loadAllTasks();
 //            if (words != null && !words.isEmpty()) {
@@ -232,34 +233,70 @@ Model mode;
 
     private void extractFovorite() {
 
-        MainViewModel model= ViewModelProviders.of(this).get(MainViewModel.class);
-        model.getAllTasks().observe(this, new Observer<List<Model>>() {
+        MainViewModel viewModel= ViewModelProviders.of(this).get(MainViewModel.class);
+        LiveData<List<Model>> fov=viewModel.getAllTasks();
+        fov.observe(this, new Observer<List<Model>>() {
             @Override
             public void onChanged(@Nullable List<Model> models) {
+                for (int i = 0; i < models.size(); i++) {
+                    Model model = models.get(i);
+                    String poster = model.getPoster();
+                    String overview = model.getOverview();
+                    String title = model.getTitle();
+                    String release = model.getRelease();
+                    String vote = model.getVote();
+                    String id = model.getId();
+                    int idTable=model.getIdTable();
+                  Model  mode = new Model(idTable,title, poster, overview, vote, release, id);
+                   words.add(mode);
+                    Toast.makeText(MainActivity.this,"iddd"+id,Toast.LENGTH_LONG).show();
+                    //tasks=words;
 
-                 for(int i=0;i<models.size();i++){
-                    Model model=models.get(i);
-                    String poster=model.getPoster();
-                    String overview=model.getOverview();
-                    String title=model.getTitle();
-                    String release=model.getRelease();
-                    String  vote=model.getVote();
-                    String id=model.getId();
-                     mode=new Model(title,poster,overview,vote,release,id);
-                     models.add(mode);
+                    Log.v("MainActivity","tttttttttttttttt"+words.size());
+                    //recyclerView.setAdapter(adapter);
+                }
+
+              adapter.setTasks(words);
+//                adapter = new MovieAdapter(getApplicationContext(), words, this);
+//                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
+//                recyclerView.setAdapter(adapter);
+
+              recyclerView.setAdapter(adapter);
+               // adapter.notifyDataSetChanged();
 
 
-                     Log.v("MainActivity","mmmmmmmmmmm"+models.size());
+            } });
+       // tasks=words;
 
-                 }
+
+
+//        fov.observe(this, new Observer<List<Model>>() {
+//            @Override
+//            public void onChanged(@Nullable List<Model> fov) {
+//
+//                 for(int i=0;i<fov.size();i++){
+//                    Model model=fov.get(i);
+//                    String poster=model.getPoster();
+//                    String overview=model.getOverview();
+//                    String title=model.getTitle();
+//                    String release=model.getRelease();
+//                    String  vote=model.getVote();
+//                    String id=model.getId();
+//                     mode=new Model(title,poster,overview,vote,release,id);
+//                    fov.add(mode);
+//
+//
+//                     Log.v("MainActivity","mmmmmmmmmmm"+fov.size());
+//
+//                 }
 //               adapter=new MovieAdapter(getApplicationContext(),newModels,this);
 //               recyclerView.setAdapter(adapter);
 //                Log.v("MainActivity","tttttttttttttttt"+models.size());
-                adapter.setTasks(models);
+               // adapter.setTasks(fov);
 
 
-            }
-        });
+           // }
+       // });
     }
 
 
@@ -284,6 +321,22 @@ Model mode;
     @Override
     public void onItemClick(Model model) {
 
+    }
+
+
+    class FovoriteTask extends AsyncTask<String,Void,Boolean>{
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+             extractFovorite();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            adapter.notifyDataSetChanged();
+        }
     }
 
 

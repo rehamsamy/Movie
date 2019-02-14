@@ -50,6 +50,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
     }
 
+    public void setTasks(List<Model> mwords) {
+
+       words=mwords;
+
+        notifyDataSetChanged();
+    }
+
+
     Observer<List<Model>> observer;
     public MovieAdapter(Context applicationContext, List<Model> models, Observer<List<Model>> mobserver) {
         context=applicationContext;
@@ -64,7 +72,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     @Override
     public MovieAdapter.Holder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
-        Log.v(TAG, "view is null");
 
         return new Holder(view);
     }
@@ -114,10 +121,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     }
 
 
-    public void setTasks(List<Model> mwords) {
-        words=mwords;
-        notifyDataSetChanged();
-    }
 
     public static List<Model> getTasks(){
         return words;
