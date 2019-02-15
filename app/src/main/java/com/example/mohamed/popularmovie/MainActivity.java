@@ -191,9 +191,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             posters();
 
         } else if (id == R.id.fovorite) {
-            //words.clear();
+            words.clear();
             //adapter.notifyDataSetChanged();
             extractFovorite();
+
 
         } else {
 
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
                 }
 
-                adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
                     adapter.setTasks(words);
                     //recyclerView.setAdapter(adapter);
 
@@ -268,6 +269,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     public void onItemClick(Movies model) {
 
     }
+
 
 
 
