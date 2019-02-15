@@ -1,40 +1,34 @@
 package com.example.mohamed.popularmovie;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.mohamed.popularmovie.Utils.pop;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
     private ItemClick mOnClick;
 
 
-
+    public List<Movies> words;
     public interface ItemClick {
-        void onItemClick(Model model);
+        void onItemClick(Movies model);
 
     }
 
 
     Context context;
-    public static List<Model> words;
+
 
 
     Model model;
@@ -42,30 +36,29 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
 
-    public MovieAdapter(Context mcontext, List<Model> mwords, ItemClick listener) {
-        context = mcontext;
-        words = mwords;
-        mOnClick = listener;
+    public MovieAdapter(Context mcontext, ArrayList<Movies> mwords, ItemClick listener) {
+        this.context = mcontext;
+        this.words = mwords;
+       this.mOnClick = listener;
 
 
     }
 
-    public void setTasks(List<Model> mwords) {
-
-       words=mwords;
-
+    public void setTasks(List<Movies> words) {
+        this.words=words;
         notifyDataSetChanged();
-    }
-
-
-    Observer<List<Model>> observer;
-    public MovieAdapter(Context applicationContext, List<Model> models, Observer<List<Model>> mobserver) {
-        context=applicationContext;
-        words=models;
-        observer=mobserver;
-
 
     }
+
+
+//    Observer<ArrayList<Movies>> observer;
+//    public MovieAdapter(Context applicationContext, ArrayList<Model> models, Observer<ArrayList<Model>> mobserver) {
+//       this.context=applicationContext;
+//       this.words=models;
+//        this.observer=mobserver;
+//
+//
+//    }
 
 
     @NonNull
@@ -78,7 +71,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
     @Override
     public void onBindViewHolder(@NonNull MovieAdapter.Holder holder, int i) {
-        final Model model = words.get(i);
+        final Movies model = words.get(i);
         String path = model.getPoster();
         // Toast.makeText(context,"xxxx"+model.getMtitle(),Toast.LENGTH_LONG);
 
@@ -122,8 +115,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
 
 
-    public static List<Model> getTasks(){
-        return words;
+    public  ArrayList<Movies> getTasks(){
+        return (ArrayList<Movies>) words;
 
     }
 

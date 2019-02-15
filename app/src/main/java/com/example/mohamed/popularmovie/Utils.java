@@ -2,7 +2,6 @@ package com.example.mohamed.popularmovie;
 
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +24,7 @@ public final class Utils {
 
     private static String TAG = Utils.class.getSimpleName();
 
-    public static List<Model> fetchinputs(String urlResoponce) {
+    public static List<Movies> fetchinputs(String urlResoponce) {
         URL url = createUrl(urlResoponce);
 
         Log.v(TAG, "created url");
@@ -33,7 +32,7 @@ public final class Utils {
         String jsonResponce = readStream(url);
         Log.v(TAG, "created stream");
 
-        List<Model> films = extractMovie(jsonResponce);
+        List<Movies> films = extractMovie(jsonResponce);
 
         Log.v(TAG, "created json");
 
@@ -49,14 +48,14 @@ public final class Utils {
 
     }
 
-    public static List<Model> extractMovie(String jsonResponse) {
+    public static List<Movies> extractMovie(String jsonResponse) {
 
         if (TextUtils.isEmpty(jsonResponse)) {
             Log.v(TAG, "json is null");
             return null;
         }
 
-        List<Model> films = new ArrayList<>();
+        List<Movies> films = new ArrayList<>();
         List<String> populate = new ArrayList<>();
 
 
@@ -80,7 +79,7 @@ public final class Utils {
 
                // Log.v(TAG, "title overview" + title + overview);
 
-                Model model = new Model(title, poster_image, overview, vote_average, realse_data,id);
+                Movies model = new Movies(title, poster_image, overview, vote_average, realse_data,id);
 
                 Log.v(TAG, "title overview" + id);
                // Toast.makeText(TAG, "dddddddddddddddd"+id, Toast.LENGTH_SHORT).show();

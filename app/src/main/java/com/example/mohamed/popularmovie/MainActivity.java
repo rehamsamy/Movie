@@ -1,20 +1,13 @@
 
 package com.example.mohamed.popularmovie;
 
-import android.app.LoaderManager;
-import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.net.sip.SipAudioCall;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,33 +15,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mohamed.popularmovie.Model;
-import com.example.mohamed.popularmovie.MovieAdapter;
 import com.example.mohamed.popularmovie.Room.AppDatabase;
 import com.example.mohamed.popularmovie.Room.MainViewModel;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.SimpleTimeZone;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClick {
 
@@ -58,15 +34,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     RecyclerView recyclerView;
     private static String murl;
 
-    TextView text;
-    List<Model> words;
+
+    ArrayList<Movies> words = new ArrayList<>();
     ConnectivityManager manager;
     NetworkInfo networkInfo;
     AppDatabase database;
     List<Model> tasks;
-Model mode;
+    Model mode;
     List<Model> newModels;
 
+       private static final String KEY="key";
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,10 +52,10 @@ Model mode;
         database = AppDatabase.getmInstance(getApplicationContext());
 
         recyclerView = findViewById(R.id.list);
-        words = new ArrayList<>();
+        //words = new ArrayList<>();
 
-
-        text = (TextView) findViewById(R.id.connect);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
         manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -95,22 +72,38 @@ Model mode;
         } else {
 
 
-            text.setText("Internet Disconnected");
-            text.setVisibility(View.VISIBLE);
-
             Toast.makeText(getApplicationContext(), "Make sure that Internet is Connected", Toast.LENGTH_LONG).show();
 
         }
 
 
         Log.v(TAG, "added data to adapter");
+
+        if (savedInstanceState != null) {
+            words = savedInstanceState.getParcelableArrayList(KEY);
+
+
+        } else {
+//            loadPosters();
+//            mAdapter = new MovieAdapter(this,data);
+
+        }
+
+
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY, words);
 
 
-    public class Eath extends AsyncTask<String, Void, List<Model>> implements MovieAdapter.ItemClick {
+
+    }
+
+    public class Eath extends AsyncTask<String, Void, List<Movies>> implements MovieAdapter.ItemClick {
         @Override
-        protected List<Model> doInBackground(String... urls) {
+        protected List<Movies> doInBackground(String... urls) {
 
             if (urls.length < 1 || urls[0] == null) {
 
@@ -118,7 +111,7 @@ Model mode;
                 Toast.makeText(getApplicationContext(), "Make sure Internet Is connected", Toast.LENGTH_LONG).show();
                 return null;
             } else {
-                List<Model> result = null;
+                List<Movies> result = null;
                 result = Utils.fetchinputs(urls[0]);
 
                 return result;
@@ -128,10 +121,10 @@ Model mode;
 
 
         @Override
-        protected void onPostExecute(List<Model> words) {
+        protected void onPostExecute(List<Movies> words) {
             super.onPostExecute(words);
             if (words != null && !words.isEmpty()) {
-                adapter = new MovieAdapter(getApplicationContext(), words, this);
+                adapter = new MovieAdapter(getApplicationContext(), (ArrayList<Movies>) words, this);
                 recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
                 recyclerView.setAdapter(adapter);
 
@@ -143,7 +136,7 @@ Model mode;
         }
 
         @Override
-        public void onItemClick(Model model) {
+        public void onItemClick(Movies model) {
             String title = model.getTitle();
             String overview = model.getOverview();
             String release = model.getRelease();
@@ -198,32 +191,13 @@ Model mode;
             posters();
 
         } else if (id == R.id.fovorite) {
-            words.clear();
-
-            new FovoriteTask().execute();
-
-//            words=  database.daoTask().loadAllTasks();
-//            if (words != null && !words.isEmpty()) {
-//                adapter = new MovieAdapter(getApplicationContext(), words, this);
-//                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
-//                recyclerView.setAdapter(adapter);
-//                //adapter.setTasks(words);
-//
-//                Log.v("MainActivity","xxxxxxxxxxx"+words.size());
-//
-//
-//            } else {
-//                Log.v("MainActivity","nnnnnnnnnnnn"+words.size());
-//
-//                // words.clear();
-//            }
-//
+            //words.clear();
+            //adapter.notifyDataSetChanged();
+            extractFovorite();
 
         } else {
 
-            text.setTextSize(30);
-            text.setText("network offline");
-            text.setVisibility(View.VISIBLE);
+
             Toast.makeText(getApplicationContext(), " Disconnected", Toast.LENGTH_LONG).show();
 
         }
@@ -232,9 +206,8 @@ Model mode;
     }
 
     private void extractFovorite() {
-
-        MainViewModel viewModel= ViewModelProviders.of(this).get(MainViewModel.class);
-        LiveData<List<Model>> fov=viewModel.getAllTasks();
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        LiveData<List<Model>> fov = viewModel.getAllTasks();
         fov.observe(this, new Observer<List<Model>>() {
             @Override
             public void onChanged(@Nullable List<Model> models) {
@@ -246,57 +219,30 @@ Model mode;
                     String release = model.getRelease();
                     String vote = model.getVote();
                     String id = model.getId();
-                    int idTable=model.getIdTable();
-                  Model  mode = new Model(idTable,title, poster, overview, vote, release, id);
-                   words.add(mode);
-                    Toast.makeText(MainActivity.this,"iddd"+id,Toast.LENGTH_LONG).show();
-                    //tasks=words;
+                    int idTable = model.getIdTable();
+                    Movies mode = new Movies( title, poster, overview, vote, release, id);
+                    words.add(mode);
+                    Toast.makeText(MainActivity.this, "iddd" + id, Toast.LENGTH_LONG).show();
 
-                    Log.v("MainActivity","tttttttttttttttt"+words.size());
-                    //recyclerView.setAdapter(adapter);
+
                 }
 
-              adapter.setTasks(words);
-//                adapter = new MovieAdapter(getApplicationContext(), words, this);
-//                recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
-//                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                    adapter.setTasks(words);
+                    //recyclerView.setAdapter(adapter);
 
-              recyclerView.setAdapter(adapter);
-               // adapter.notifyDataSetChanged();
+                Log.v("MainActivity", "tttttttttttttttt" + models.get(1).getId());
 
 
-            } });
-       // tasks=words;
+//                text.setText("idddddddddd"+models.get(2).getOverview());
+//                text.setVisibility(View.VISIBLE);
 
 
 
-//        fov.observe(this, new Observer<List<Model>>() {
-//            @Override
-//            public void onChanged(@Nullable List<Model> fov) {
-//
-//                 for(int i=0;i<fov.size();i++){
-//                    Model model=fov.get(i);
-//                    String poster=model.getPoster();
-//                    String overview=model.getOverview();
-//                    String title=model.getTitle();
-//                    String release=model.getRelease();
-//                    String  vote=model.getVote();
-//                    String id=model.getId();
-//                     mode=new Model(title,poster,overview,vote,release,id);
-//                    fov.add(mode);
-//
-//
-//                     Log.v("MainActivity","mmmmmmmmmmm"+fov.size());
-//
-//                 }
-//               adapter=new MovieAdapter(getApplicationContext(),newModels,this);
-//               recyclerView.setAdapter(adapter);
-//                Log.v("MainActivity","tttttttttttttttt"+models.size());
-               // adapter.setTasks(fov);
+            }
+        });
 
 
-           // }
-       // });
     }
 
 
@@ -304,7 +250,7 @@ Model mode;
     protected void onResume() {
         super.onResume();
 
-       // extractFovorite();
+        // extractFovorite();
         if (networkInfo != null && networkInfo.isConnected()) {
             murl = "http://api.themoviedb.org/3/movie/popular?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
             posters();
@@ -319,28 +265,14 @@ Model mode;
 
 
     @Override
-    public void onItemClick(Model model) {
+    public void onItemClick(Movies model) {
 
     }
-
-
-    class FovoriteTask extends AsyncTask<String,Void,Boolean>{
-
-        @Override
-        protected Boolean doInBackground(String... strings) {
-             extractFovorite();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            adapter.notifyDataSetChanged();
-        }
-    }
-
 
 
 
 
 }
+
+
+
