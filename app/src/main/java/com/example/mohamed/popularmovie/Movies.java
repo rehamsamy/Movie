@@ -1,11 +1,10 @@
 package com.example.mohamed.popularmovie;
 
-import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Movies implements Parcelable{
-   // int idTable;
+    int idTable;
     String title;
     String poster;
     String overview;
@@ -14,9 +13,10 @@ public class Movies implements Parcelable{
     String id;
 
 
-    public Movies(String title, String poster, String overview, String vote, String release,String id) {
 
-        //this.idTable=idTable;
+    public Movies(int idTable,String title, String poster, String overview, String vote, String release,String id) {
+
+        this.idTable=idTable;
         this.title = title;
         this.poster = poster;
         this.overview = overview;
@@ -26,6 +26,22 @@ public class Movies implements Parcelable{
     }
 
 
+    public Movies(String title, String poster, String overview, String vote, String release,String id) {
+
+        this.idTable=idTable;
+        this.title = title;
+        this.poster = poster;
+        this.overview = overview;
+        this.vote = vote;
+        this.release = release;
+        this.id=id;
+    }
+
+
+
+    public int getIdTable() {
+        return idTable;
+    }
 
     public String getTitle() {
         return title;
@@ -51,6 +67,9 @@ public class Movies implements Parcelable{
         return id;
     }
 
+    public void setIdTable(int idTable) {
+        this.idTable = idTable;
+    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -86,6 +105,7 @@ public class Movies implements Parcelable{
         title = in.readString();
          id= in.readString();
         vote = in.readString();
+        idTable=in.readInt();
 
     }
 
@@ -104,6 +124,7 @@ public class Movies implements Parcelable{
         out.writeString(release);
         out.writeString(vote);
         out.writeString(id);
+        out.writeInt(idTable);
 
 
 

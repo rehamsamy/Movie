@@ -24,7 +24,7 @@ public final class Utils {
 
     private static String TAG = Utils.class.getSimpleName();
 
-    public static List<Movies> fetchinputs(String urlResoponce) {
+    public static List<Model> fetchinputs(String urlResoponce) {
         URL url = createUrl(urlResoponce);
 
         Log.v(TAG, "created url");
@@ -32,7 +32,7 @@ public final class Utils {
         String jsonResponce = readStream(url);
         Log.v(TAG, "created stream");
 
-        List<Movies> films = extractMovie(jsonResponce);
+        List<Model> films = extractMovie(jsonResponce);
 
         Log.v(TAG, "created json");
 
@@ -48,14 +48,14 @@ public final class Utils {
 
     }
 
-    public static List<Movies> extractMovie(String jsonResponse) {
+    public static List<Model> extractMovie(String jsonResponse) {
 
         if (TextUtils.isEmpty(jsonResponse)) {
             Log.v(TAG, "json is null");
             return null;
         }
 
-        List<Movies> films = new ArrayList<>();
+        List<Model> films = new ArrayList<>();
         List<String> populate = new ArrayList<>();
 
 
@@ -79,7 +79,7 @@ public final class Utils {
 
                // Log.v(TAG, "title overview" + title + overview);
 
-                Movies model = new Movies(title, poster_image, overview, vote_average, realse_data,id);
+                Model model = new Model(title, poster_image, overview, vote_average, realse_data,id);
 
                 Log.v(TAG, "title overview" + id);
                // Toast.makeText(TAG, "dddddddddddddddd"+id, Toast.LENGTH_SHORT).show();

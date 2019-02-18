@@ -1,14 +1,19 @@
 package com.example.mohamed.popularmovie;
 
 import android.app.Notification;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.drm.DrmStore;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -40,12 +45,16 @@ public class Detail extends AppCompatActivity {
     ImageView poster;
  public    List<ModelId> keys;
 
+ LiveData<List<Model>> tasks;
+ Boolean like=true;
+
  Button fovorite;
 
     String url;
     AppDatabase database;
 
-    String mposter ,mtitle,moverview,mrelease,mvote,mid ;
+    String mposter ,mtitle,moverview,mrelease,mvote,mid ,mpath;
+    int idTable;
 
     ListView listReview;
     Adapter adapter;
@@ -53,6 +62,8 @@ public class Detail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+
 
         database = AppDatabase.getmInstance(getApplicationContext());
 
@@ -68,27 +79,43 @@ public class Detail extends AppCompatActivity {
         vote = (TextView) findViewById(R.id.vote);
         poster = (ImageView) findViewById(R.id.poster);
 
+
+
+
+
         Intent intent = getIntent();
 
-        mtitle = intent.getStringExtra("title_key");
-        moverview = intent.getStringExtra("overview_key");
-        mrelease = intent.getStringExtra("release_key");
-        mvote = intent.getStringExtra("vote_key");
-        mposter = intent.getStringExtra("url_key");
-        mid = intent.getStringExtra("pop_id");
-        Toast.makeText(Detail.this, "idddddddddddd" + mid, Toast.LENGTH_LONG).show();
+        if(intent!=null ){
+            //fovorite.setText("there found in favorite list");
+
+            mtitle = intent.getStringExtra("title_key");
+            moverview = intent.getStringExtra("overview_key");
+            mrelease = intent.getStringExtra("release_key");
+            mvote = intent.getStringExtra("vote_key");
+            mposter = intent.getStringExtra("url_key");
+            mid = intent.getStringExtra("pop_id");
+            mpath=intent.getStringExtra("path_key");
+           // idTable=Integer.parseInt(intent.getStringExtra("id_table"));
+            Toast.makeText(Detail.this, "idddddddddddd" + mid, Toast.LENGTH_LONG).show();
 
 
-        url = "http://api.themoviedb.org/3/movie/" + mid + "/videos?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
+            url = "http://api.themoviedb.org/3/movie/" + mid + "/videos?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
 
-        title.setText(mtitle);
-        overview.setText(moverview);
-        release.setText(mrelease);
-        vote.setText(mvote);
+            title.setText(mtitle);
+            overview.setText(moverview);
+            release.setText(mrelease);
+            vote.setText(mvote);
 
-        Picasso.with(this).load(mposter).into(poster);
+            Picasso.with(this).load(mposter).into(poster);
 
-        new Task().execute(url);
+            new Task().execute(url);
+
+
+        }
+
+        checkFavourite();
+
+
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -105,7 +132,7 @@ public class Detail extends AppCompatActivity {
 
                 // ModelId model=parent.getItemAtPosition(position);
 
-
+               // https://image.tmdb.org/t/p/w185/
             }
         });
 
@@ -117,21 +144,26 @@ public class Detail extends AppCompatActivity {
 
 
 
+        //fav.setBackgroundColor(Color.GRAY);
 
-        fovorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Model model=new Model(mtitle,mposter,moverview,mvote,mrelease,mid);
-
-                AppExecutor.getInstance().getDiskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        database.daoTask().insertTask(model);
-                        Log.v("Detail","id"+mid+mrelease);
-
-                    }
-                });
-
+//        fovorite.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//
+//                final Model model=new Model(mtitle,mposter,moverview,mvote,mrelease,mid);
+//
+//                AppExecutor.getInstance().getDiskIO().execute(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        database.daoTask().insertTask(model);
+//                        Log.v("Detail","id"+mid+mrelease);
+//
+//                     //   fovorite.setText(" already in favorite List");
+//
+//                    }
+//                });
+//
 
 
 //                database.daoTask().insertTask(model);
@@ -140,11 +172,68 @@ public class Detail extends AppCompatActivity {
 //                Log.v("Detail","id"+mid+mrelease);
 
 
+//            }
+//        });
+
+
+        fovorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (like) {
+               //    Model model = new FavouriteDB(poster, desc, date, id, title, rate, mImageBackdrop);
+
+                    //String poster=mposter.substring(31);
+
+                    final Model model=new Model(mtitle,mpath,moverview,mvote,mrelease,mid);
+
+                   database.daoTask().insertTask(model);
+                    fovorite.setText("UnFavourite");
+                    fovorite.setBackgroundColor(Color.GRAY);
+                    Log.v("Detail","insert"+model.getId());
+                    like = false;
+                } else {
+                    //FavouriteDB favouriteDB = new FavouriteDB(DbId, poster, desc, date, id, title, rate, mImageBackdrop);
+                    final Model model=new Model(mtitle,mposter,moverview,mvote,mrelease,mid);
+
+                    database.daoTask().deleteMovie(model);
+                    fovorite.setText("Favourite");
+                    fovorite.setBackgroundColor(Color.GREEN);
+                    Log.v("Detail","deleted"+model.getId());
+
+                    like = true;
+
+                }
             }
         });
 
 
+
     }
+
+    private void checkFavourite() {
+
+        tasks = database.daoTask().loadAllTasks();
+        tasks.observe(this, new Observer<List<Model>>() {
+            @Override
+            public void onChanged(@Nullable List<Model> models) {
+                for (int i = 0; i < models.size(); i++) {
+                    //String mtitle=
+
+                    if (mtitle.equals(models.get(i).getTitle())) {
+                        like = false;
+                        Toast.makeText(getApplicationContext(), "this Movie has been saved to Favourite", Toast.LENGTH_LONG).show();
+                        fovorite.setText("UnFavourite");
+                        fovorite.setBackgroundColor(Color.GRAY);
+                        idTable = models.get(i).getIdTable();
+                        break;
+                    }
+                }
+            }
+        });
+
+    }
+
+
 
    public class Task extends AsyncTask<String ,Void,List<ModelId>>{
 

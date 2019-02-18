@@ -20,14 +20,22 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     private ItemClick mOnClick;
 
 
-    public List<Movies> words;
-    public interface ItemClick {
-        void onItemClick(Movies model);
+    private List<Model> words;
+
+    public MovieAdapter(Context context, List<Model> words) {
+        this.context = context;
+       this.words=words;
 
     }
 
 
-    Context context;
+    public interface ItemClick {
+        void onItemClick(Model model);
+
+    }
+
+
+   private Context context;
 
 
 
@@ -36,7 +44,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
 
-    public MovieAdapter(Context mcontext, ArrayList<Movies> mwords, ItemClick listener) {
+    public MovieAdapter(Context mcontext, ArrayList<Model> mwords, ItemClick listener) {
         this.context = mcontext;
         this.words = mwords;
        this.mOnClick = listener;
@@ -44,21 +52,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
     }
 
-    public void setTasks(List<Movies> words) {
-        this.words=words;
+    public void setTasks(List<Model> mwords) {
+        words=mwords;
+        Log.v(TAG,"words size="+mwords.size());
         notifyDataSetChanged();
 
     }
 
-
-//    Observer<ArrayList<Movies>> observer;
-//    public MovieAdapter(Context applicationContext, ArrayList<Model> models, Observer<ArrayList<Model>> mobserver) {
-//       this.context=applicationContext;
-//       this.words=models;
-//        this.observer=mobserver;
-//
-//
-//    }
 
 
     @NonNull
@@ -71,7 +71,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
     @Override
     public void onBindViewHolder(@NonNull MovieAdapter.Holder holder, int i) {
-        final Movies model = words.get(i);
+        final Model model = words.get(i);
         String path = model.getPoster();
         // Toast.makeText(context,"xxxx"+model.getMtitle(),Toast.LENGTH_LONG);
 
@@ -86,6 +86,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
         Picasso.with(context)
                 .load(full_url)
                 .into(holder.poster);
+
+
 
         holder.poster.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,8 +117,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
 
 
 
-    public  ArrayList<Movies> getTasks(){
-        return (ArrayList<Movies>) words;
+
+
+    public  ArrayList<Model> getTasks(){
+        return (ArrayList<Model>) words;
 
     }
 

@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -28,20 +29,20 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClick {
 
-    public MovieAdapter adapter;
+    private static MovieAdapter adapter;
     public static final String TAG = MainActivity.class.getName();
 
     RecyclerView recyclerView;
     private static String murl;
 
 
-    ArrayList<Movies> words = new ArrayList<>();
+    ArrayList<Model>words;
     ConnectivityManager manager;
     NetworkInfo networkInfo;
     AppDatabase database;
     List<Model> tasks;
-    Model mode;
     List<Model> newModels;
+    int x;
 
        private static final String KEY="key";
     @Override
@@ -49,12 +50,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        words = new ArrayList<>();
+
+
         database = AppDatabase.getmInstance(getApplicationContext());
 
         recyclerView = findViewById(R.id.list);
-        //words = new ArrayList<>();
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //adapter.setTasks(words);
+       // extractFovorite();
         recyclerView.setAdapter(adapter);
 
         manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -67,11 +70,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             recyclerView.setAdapter(adapter);
 
             Toast.makeText(getApplicationContext(), "Internet is connectet", Toast.LENGTH_LONG).show();
-
+           // extractFovorite();
 
         } else {
 
-
+              adapter=new MovieAdapter(this,words);
+              recyclerView.setAdapter(adapter);
             Toast.makeText(getApplicationContext(), "Make sure that Internet is Connected", Toast.LENGTH_LONG).show();
 
         }
@@ -80,30 +84,50 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         Log.v(TAG, "added data to adapter");
 
         if (savedInstanceState != null) {
-            words = savedInstanceState.getParcelableArrayList(KEY);
-
-
-        } else {
-//            loadPosters();
-//            mAdapter = new MovieAdapter(this,data);
-
+            recyclerView.getLayoutManager().onRestoreInstanceState((Parcelable) words);
         }
 
-
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY, words);
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//
+//       // words=adapter.getTasks();
+//
+//        outState.putParcelableArrayList(KEY, words);
+//
+//      // x= adapter.get
+//        outState.putInt("index",x);
+//        Log.v("INSTANCE_STATE", "save");
+//        super.onSaveInstanceState(outState);
+//    }
 
+@Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
 
+        RecyclerView.LayoutManager layoutManager=recyclerView.getLayoutManager();
 
+        // Save list state
+//     words=recyclerView.getLayoutManager().onSaveInstanceState();
+//       // words = layoutManager.onSaveInstanceState();
+//        state.putParcelable("key",  words);
     }
 
-    public class Eath extends AsyncTask<String, Void, List<Movies>> implements MovieAdapter.ItemClick {
+
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+
+        // Retrieve list state and list/item positions
+        if(state != null)
+            words = state.getParcelable("key");
+    }
+
+
+
+    public  class Eath extends AsyncTask<String, Void, List<Model>> implements MovieAdapter.ItemClick {
         @Override
-        protected List<Movies> doInBackground(String... urls) {
+        protected List<Model> doInBackground(String... urls) {
 
             if (urls.length < 1 || urls[0] == null) {
 
@@ -111,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
                 Toast.makeText(getApplicationContext(), "Make sure Internet Is connected", Toast.LENGTH_LONG).show();
                 return null;
             } else {
-                List<Movies> result = null;
+                List<Model> result = null;
                 result = Utils.fetchinputs(urls[0]);
 
                 return result;
@@ -121,10 +145,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
 
         @Override
-        protected void onPostExecute(List<Movies> words) {
+        protected void onPostExecute(List<Model> words) {
             super.onPostExecute(words);
             if (words != null && !words.isEmpty()) {
-                adapter = new MovieAdapter(getApplicationContext(), (ArrayList<Movies>) words, this);
+                adapter = new MovieAdapter(getApplicationContext(), (ArrayList<Model>) words, this);
                 recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
                 recyclerView.setAdapter(adapter);
 
@@ -136,12 +160,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         }
 
         @Override
-        public void onItemClick(Movies model) {
+        public void onItemClick(Model model) {
             String title = model.getTitle();
             String overview = model.getOverview();
             String release = model.getRelease();
             String vote = model.getVote();
             String id = model.getId();
+
+            //int idTable=model.getIdTable();
+
+
             Intent intent = new Intent(getApplicationContext(), Detail.class);
 
             String path = model.getPoster();
@@ -150,11 +178,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             final String full_url = base_url + value + "/" + path;
 
             intent.putExtra("title_key", title);
+            intent.putExtra("path_key", path);
             intent.putExtra("url_key", full_url);
+
             intent.putExtra("overview_key", overview);
             intent.putExtra("release_key", release);
             intent.putExtra("vote_key", vote);
             intent.putExtra("pop_id", id);
+           // intent.putExtra("id_table",idTable);
             Log.v(TAG, "title is " + title);
             Log.v(TAG, "idddddddddddddddddd " + id);
             // Toast.makeText(MainActivity.this,"idddddddddddd"+id,Toast.LENGTH_LONG).show();
@@ -168,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     public void posters() {
         new Eath().execute(murl);
     }
+
 
 
     @Override
@@ -191,12 +223,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             posters();
 
         } else if (id == R.id.fovorite) {
-            words.clear();
-            //adapter.notifyDataSetChanged();
+
             extractFovorite();
-
-
-        } else {
+       } else {
 
 
             Toast.makeText(getApplicationContext(), " Disconnected", Toast.LENGTH_LONG).show();
@@ -206,71 +235,38 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         return true;
     }
 
-    private void extractFovorite() {
+
+
+
+
+    @Override
+    public void onItemClick(Model model) {
+
+    }
+
+
+
+    private void  extractFovorite() {
+        tasks=new ArrayList<>();
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         LiveData<List<Model>> fov = viewModel.getAllTasks();
         fov.observe(this, new Observer<List<Model>>() {
             @Override
             public void onChanged(@Nullable List<Model> models) {
-                for (int i = 0; i < models.size(); i++) {
-                    Model model = models.get(i);
-                    String poster = model.getPoster();
-                    String overview = model.getOverview();
-                    String title = model.getTitle();
-                    String release = model.getRelease();
-                    String vote = model.getVote();
-                    String id = model.getId();
-                    int idTable = model.getIdTable();
-                    Movies mode = new Movies( title, poster, overview, vote, release, id);
-                    words.add(mode);
-                    Toast.makeText(MainActivity.this, "iddd" + id, Toast.LENGTH_LONG).show();
+                if(models==null){
+                    Toast.makeText(getApplicationContext(),"favorite is empty",Toast.LENGTH_LONG).show();
 
+                }else{
+                    adapter.setTasks(models);
 
                 }
 
-                //adapter.notifyDataSetChanged();
-                    adapter.setTasks(words);
-                    //recyclerView.setAdapter(adapter);
-
-                Log.v("MainActivity", "tttttttttttttttt" + models.get(1).getId());
-
-
-//                text.setText("idddddddddd"+models.get(2).getOverview());
-//                text.setVisibility(View.VISIBLE);
-
-
-
             }
         });
+        Log.v("MainActivity", "tasks is"+words.size());
 
 
     }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // extractFovorite();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            murl = "http://api.themoviedb.org/3/movie/popular?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
-            posters();
-            recyclerView.setAdapter(adapter);
-
-            Toast.makeText(getApplicationContext(), "Internet is connectet", Toast.LENGTH_LONG).show();
-
-
-        }
-
-    }
-
-
-    @Override
-    public void onItemClick(Movies model) {
-
-    }
-
-
 
 
 

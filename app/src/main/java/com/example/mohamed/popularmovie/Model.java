@@ -4,13 +4,15 @@ package com.example.mohamed.popularmovie;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Display;
 
 import java.util.List;
 
 @Entity(tableName = "task")
-public class Model {
+public class Model  implements Parcelable {
 
     @PrimaryKey(autoGenerate=true)
     int idTable;
@@ -26,8 +28,7 @@ public class Model {
 //String TAG= getClass().getSimpleName();
 
 
-
-@Ignore
+     @Ignore
     public Model(String title, String poster, String overview, String vote, String release,String id) {
 
         this.title = title;
@@ -57,6 +58,27 @@ public class Model {
     }
 
 
+    public Model(Parcel in) {
+        idTable = in.readInt();
+        title = in.readString();
+        poster = in.readString();
+        overview = in.readString();
+        vote = in.readString();
+        release = in.readString();
+        id = in.readString();
+    }
+
+    public static final Creator<Model> CREATOR = new Creator<Model>() {
+        @Override
+        public Model createFromParcel(Parcel in) {
+            return new Model(in);
+        }
+
+        @Override
+        public Model[] newArray(int size) {
+            return new Model[size];
+        }
+    };
 
     public int getIdTable() {
         return idTable;
@@ -112,5 +134,21 @@ public class Model {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(idTable);
+        dest.writeString(title);
+        dest.writeString(poster);
+        dest.writeString(overview);
+        dest.writeString(vote);
+        dest.writeString(release);
+        dest.writeString(id);
     }
 }

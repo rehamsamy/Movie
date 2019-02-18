@@ -2,6 +2,7 @@ package com.example.mohamed.popularmovie.Room;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
@@ -18,6 +19,10 @@ public interface DaoTask {
 
     @Query("SELECT * FROM task ORDER BY idTable")
     LiveData<List<Model>> loadAllTasks();
+
+
+    @Delete
+    void deleteMovie(Model model);
 
 
 
