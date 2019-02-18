@@ -95,6 +95,7 @@ public class Detail extends AppCompatActivity {
             mposter = intent.getStringExtra("url_key");
             mid = intent.getStringExtra("pop_id");
             mpath=intent.getStringExtra("path_key");
+           // idTable=Integer.parseInt(intent.getStringExtra("idTable_key"));
            // idTable=Integer.parseInt(intent.getStringExtra("id_table"));
             Toast.makeText(Detail.this, "idddddddddddd" + mid, Toast.LENGTH_LONG).show();
 
@@ -191,7 +192,7 @@ public class Detail extends AppCompatActivity {
                     fovorite.setBackgroundColor(Color.GRAY);
                     Log.v("Detail","insert"+model.getId());
                     like = false;
-                } else {
+                } else  {
                     //FavouriteDB favouriteDB = new FavouriteDB(DbId, poster, desc, date, id, title, rate, mImageBackdrop);
                     final Model model=new Model(mtitle,mposter,moverview,mvote,mrelease,mid);
 

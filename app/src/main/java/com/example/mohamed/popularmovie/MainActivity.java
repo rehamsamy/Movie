@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -29,14 +30,14 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClick {
 
-    private static MovieAdapter adapter;
+    private  MovieAdapter adapter;
     public static final String TAG = MainActivity.class.getName();
 
     RecyclerView recyclerView;
     private static String murl;
 
 
-    ArrayList<Model>words;
+   public ArrayList<Model>words;
     ConnectivityManager manager;
     NetworkInfo networkInfo;
     AppDatabase database;
@@ -57,8 +58,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
         recyclerView = findViewById(R.id.list);
         //adapter.setTasks(words);
-       // extractFovorite();
-        recyclerView.setAdapter(adapter);
+//        extractFovorite();
+//        recyclerView.setAdapter(adapter);
+        Log.v(TAG,"wordsss"+words.size());
 
         manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         if (networkInfo != null && networkInfo.isConnected()) {
             murl = "http://api.themoviedb.org/3/movie/popular?api_key=89f2f5dacd021ea83c2b2aff5a2b3db7";
             posters();
+
             recyclerView.setAdapter(adapter);
 
             Toast.makeText(getApplicationContext(), "Internet is connectet", Toast.LENGTH_LONG).show();
@@ -102,17 +105,28 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 //        super.onSaveInstanceState(outState);
 //    }
 
-@Override
-    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
+//@Override
+//    protected void onSaveInstanceState(Bundle state) {
+//        super.onSaveInstanceState(state);
+//
+//        RecyclerView.LayoutManager layoutManager=recyclerView.getLayoutManager();
+//
+//        // Save list state
+////     words=recyclerView.getLayoutManager().onSaveInstanceState();
+////       // words = layoutManager.onSaveInstanceState();
+////        state.putParcelable("key",  words);
+//    }
 
-        RecyclerView.LayoutManager layoutManager=recyclerView.getLayoutManager();
 
-        // Save list state
-//     words=recyclerView.getLayoutManager().onSaveInstanceState();
-//       // words = layoutManager.onSaveInstanceState();
-//        state.putParcelable("key",  words);
-    }
+//    protected void onSaveInstanceState(Bundle state) {
+//        super.onSaveInstanceState(state);
+//
+//        // Save list state
+//        words = recyclerView.getLayoutManager().onSaveInstanceState();
+//        state.putParcelable("key", words);
+//    }
+//
+
 
 
     protected void onRestoreInstanceState(Bundle state) {
@@ -166,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             String release = model.getRelease();
             String vote = model.getVote();
             String id = model.getId();
+           // int idTable=model.getIdTable();
 
             //int idTable=model.getIdTable();
 
@@ -185,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             intent.putExtra("release_key", release);
             intent.putExtra("vote_key", vote);
             intent.putExtra("pop_id", id);
+           // intent.putExtra("idTable_key", idTable);
            // intent.putExtra("id_table",idTable);
             Log.v(TAG, "title is " + title);
             Log.v(TAG, "idddddddddddddddddd " + id);

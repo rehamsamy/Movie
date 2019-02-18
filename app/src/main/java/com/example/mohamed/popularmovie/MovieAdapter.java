@@ -53,7 +53,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.Holder> {
     }
 
     public void setTasks(List<Model> mwords) {
-        words=mwords;
+       this.words=mwords;
         Log.v(TAG,"words size="+mwords.size());
         notifyDataSetChanged();
 
